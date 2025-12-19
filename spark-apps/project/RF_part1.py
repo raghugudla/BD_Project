@@ -162,8 +162,8 @@ cv = CrossValidator(
     estimator=pipeline,
     estimatorParamMaps=paramGrid,
     evaluator=bin_evaluator,
-    numFolds=3,      # 2-fold CV
-    parallelism=1    # safe on your cluster
+    numFolds=3,      
+    parallelism=1    
 )
 
 

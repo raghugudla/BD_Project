@@ -37,7 +37,6 @@ print("Shuffle partitions:", spark.conf.get("spark.sql.shuffle.partitions", "Not
 
 # --------------------------------------------------
 # 2. Load unified (integrated) dataset
-#    In your cluster this would be the full lending_club_loan_two.csv
 # --------------------------------------------------
 print("=== STEP 2: LOADING DATA ===")
 datapath = "/opt/spark/work-dir/data/archive/lending_club_loan_two.csv"
@@ -49,9 +48,7 @@ df.show(2)
 df.printSchema()
 
 # --------------------------------------------------
-# 3. Basic label preparation (example)
-#    Convert loan_status to binary label: 1 = Fully Paid, 0 = Charged Off
-#    Adapt this mapping to your actual data.
+# 3. Basic label preparation 
 # --------------------------------------------------
 print("=== STEP 3: DATA PROCESSING ===")
 df = df.filter(df.loan_status.isNotNull())
@@ -68,8 +65,7 @@ df = df.withColumn(
 df = df.na.drop(subset=["label"])
 
 # --------------------------------------------------
-# 4. Feature selection & preprocessing (example)
-#    Adjust to match what you did in Part One.
+# 4. Feature selection & preprocessing 
 # --------------------------------------------------
 print("\n=== STEP 4: FEATURE ENGINEERING ===")
 categorical_cols = ["zipcode"]
@@ -119,25 +115,17 @@ assembler = VectorAssembler(
 print("\n=== 6. TRAINING ===")
 # --------------------------------------------------
 # 5. Split dataset into two disjoint subsets, one per algorithm
-#    Example: 50% for LR job, 50% for RF job
+#    50% for LR job, 50% for RF job
 # --------------------------------------------------
 split1_df, split2_df = df.randomSplit([0.5, 0.5], seed=42)
 
 # Each job will do its own train/test split on its subset
 train_df, test_df = split1_df.randomSplit([0.7, 0.3])
 
-# --------------------------------------------------
-# 6. Define two pipelines: Logistic Regression & Random Forest
-# --------------------------------------------------
 lr = LogisticRegression(featuresCol="features", labelCol="label", maxIter=20)
 
 lr_pipeline = Pipeline(stages=indexers + encoders + [assembler, lr])
 
-# --------------------------------------------------
-# 7. Train both models "simultaneously"
-#    When both fit calls are triggered without waiting on actions from the other,
-#    Spark will schedule them as concurrent jobs (depending on cluster config).
-# --------------------------------------------------
 evaluator = MulticlassClassificationEvaluator(
     labelCol="label",
     predictionCol="prediction",
@@ -150,10 +138,6 @@ start_lr = time.time()
 lr_model = lr_pipeline.fit(train_df)
 lr_training_time = time.time() - start_lr
 
-
-# --------------------------------------------------
-# 8. Evaluate both models on the same test set
-# --------------------------------------------------
 print("Testing set count:", test_df.count())
 pred_start = time.time()
 lr_predictions = lr_model.transform(test_df)

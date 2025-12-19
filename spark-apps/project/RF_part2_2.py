@@ -37,7 +37,6 @@ print("Shuffle partitions:", spark.conf.get("spark.sql.shuffle.partitions", "Not
 
 # --------------------------------------------------
 # 2. Load unified (integrated) dataset
-#    In your cluster this would be the full lending_club_loan_two.csv
 # --------------------------------------------------
 print("=== STEP 2: LOADING DATA ===")
 datapath = "/opt/spark/work-dir/data/archive/lending_club_loan_two.csv"
@@ -49,9 +48,7 @@ df.show(2)
 df.printSchema()
 
 # --------------------------------------------------
-# 3. Basic label preparation (example)
-#    Convert loan_status to binary label: 1 = Fully Paid, 0 = Charged Off
-#    Adapt this mapping to your actual data.
+# 3. Basic label preparation 
 # --------------------------------------------------
 print("=== STEP 3: DATA PROCESSING ===")
 df = df.filter(df.loan_status.isNotNull())
@@ -68,8 +65,7 @@ df = df.withColumn(
 df = df.na.drop(subset=["label"])
 
 # --------------------------------------------------
-# 4. Feature selection & preprocessing (example)
-#    Adjust to match what you did in Part One.
+# 4. Feature selection & preprocessing 
 # --------------------------------------------------
 print("\n=== STEP 4: FEATURE ENGINEERING ===")
 categorical_cols = ["zipcode"]
@@ -158,11 +154,5 @@ rf_accuracy = evaluator.evaluate(rf_predictions)
 print("\n=== Scenario 2: Integrated Dataset, Two Jobs ===")
 print(f"Random Forest       - Training time (s): {rf_training_time:.2f}")
 print(f"Random Forest       - Test Accuracy:     {rf_accuracy:.4f}")
-
-# --------------------------------------------------
-# 9. Keep the application running a bit (optional)
-#    to inspect Spark UI for concurrent jobs if needed
-# --------------------------------------------------
-# import time; time.sleep(600)
 
 spark.stop()

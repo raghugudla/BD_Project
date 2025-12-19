@@ -145,9 +145,9 @@ bin_evaluator = BinaryClassificationEvaluator(
 )
 
 paramGrid = (ParamGridBuilder()
-    .addGrid(lr.maxIter, [10, 20, 30])  # EXPANDED: 3 values
-    .addGrid(lr.regParam, [0.001, 0.01, 0.1])  # EXPANDED: 3 values
-    .addGrid(lr.elasticNetParam, [0.0, 0.3, 0.8])  # EXPANDED: 3 values
+    .addGrid(lr.maxIter, [10, 20, 30])  
+    .addGrid(lr.regParam, [0.001, 0.01, 0.1])  
+    .addGrid(lr.elasticNetParam, [0.0, 0.3, 0.8])  
     .build()
 )
 
@@ -155,12 +155,12 @@ cv = CrossValidator(
     estimator=pipeline,
     estimatorParamMaps=paramGrid,
     evaluator=bin_evaluator,
-    numFolds=2,  # INCREASED to 3-fold CV
-    parallelism=2  # safe on your cluster
+    numFolds=2,  
+    parallelism=2  
 )
 
 cv_start = time.time()
-sample_df = train_df.sample(withReplacement=False, fraction=0.2)  # REMOVED seed=42
+sample_df = train_df.sample(withReplacement=False, fraction=0.2)  # seed=42
 cv_model = cv.fit(sample_df)
 cv_end = time.time()
 
